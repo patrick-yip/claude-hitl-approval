@@ -63,7 +63,8 @@ async function main(): Promise<void> {
   const command = extractCommand(input.tool_name, input.tool_input);
   const description = extractDescription(input.tool_input);
 
-  if (!matchesAnyRule(input.tool_name, command, config.rules)) {
+  const matchedRule = matchesAnyRule(input.tool_name, command, config.rules);
+  if (!matchedRule) {
     process.exit(0);
   }
 
@@ -83,6 +84,7 @@ async function main(): Promise<void> {
         tool: input.tool_name,
         command,
         description,
+        matchedRule: JSON.stringify(matchedRule),
         workdir: cwd,
         sessionId: input.session_id ?? null,
       }),

@@ -15,6 +15,14 @@ export interface DataSourceConfig {
   headers?: Record<string, string>;
 }
 
+export interface LearningConfig {
+  enabled: boolean;
+  denyThreshold: number;
+  approveThreshold: number;
+  lookbackDays: number;
+  autoApply: boolean;
+}
+
 export interface HitlConfig {
   approval: {
     url: string;
@@ -23,6 +31,7 @@ export interface HitlConfig {
   };
   rules: HitlRule[];
   dataSource?: DataSourceConfig;
+  learning: LearningConfig;
 }
 
 export interface ApprovalRequest {
@@ -30,6 +39,7 @@ export interface ApprovalRequest {
   tool: string;
   command: string;
   description: string | null;
+  matchedRule: string | null;
   workdir: string;
   sessionId: string | null;
   userId: string;
@@ -61,6 +71,7 @@ export interface CreateRequestBody {
   tool: string;
   command: string;
   description?: string;
+  matchedRule?: string;
   workdir: string;
   sessionId?: string;
 }

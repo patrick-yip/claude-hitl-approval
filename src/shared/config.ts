@@ -3,6 +3,14 @@ import { join } from 'path';
 import { homedir } from 'os';
 import type { HitlConfig } from './types';
 
+const LEARNING_DEFAULTS: HitlConfig['learning'] = {
+  enabled: false,
+  denyThreshold: 5,
+  approveThreshold: 10,
+  lookbackDays: 30,
+  autoApply: false,
+};
+
 const DEFAULTS: HitlConfig = {
   approval: {
     url: 'http://localhost:9457',
@@ -10,6 +18,7 @@ const DEFAULTS: HitlConfig = {
     timeoutMs: 300000,
   },
   rules: [],
+  learning: LEARNING_DEFAULTS,
 };
 
 export function loadConfig(cwd: string = process.cwd(), home: string = homedir()): HitlConfig {
@@ -36,5 +45,9 @@ export function loadConfig(cwd: string = process.cwd(), home: string = homedir()
     },
     rules: file.rules ?? DEFAULTS.rules,
     dataSource: file.dataSource,
+    learning: {
+      ...DEFAULTS.learning,
+      ...(file as Record<string, unknown>).learning as Partial<HitlConfig['learning']> ?? {},
+    },
   };
 }

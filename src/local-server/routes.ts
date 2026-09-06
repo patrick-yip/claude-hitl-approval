@@ -64,10 +64,11 @@ export function registerRoutes(
 ): void {
   // Create approval request (hook)
   app.post('/requests', async (req: Request, res: Response) => {
-    const { tool, command, description, workdir, sessionId } = req.body as {
+    const { tool, command, description, matchedRule, workdir, sessionId } = req.body as {
       tool?: string;
       command?: string;
       description?: string;
+      matchedRule?: string;
       workdir?: string;
       sessionId?: string;
     };
@@ -85,6 +86,7 @@ export function registerRoutes(
       tool,
       command,
       description: callerDescription,
+      matchedRule: matchedRule ?? null,
       workdir,
       sessionId: sessionId ?? null,
       userId: 'user',

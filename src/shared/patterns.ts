@@ -21,8 +21,8 @@ export function matchesAnyRule(
   toolName: string,
   command: string,
   rules: HitlRule[],
-): boolean {
-  return rules.some(
+): HitlRule | null {
+  return rules.find(
     (rule) => rule.tool === toolName && globToRegex(rule.pattern).test(command),
-  );
+  ) ?? null;
 }

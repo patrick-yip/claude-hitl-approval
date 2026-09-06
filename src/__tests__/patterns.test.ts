@@ -9,27 +9,38 @@ const rules: HitlRule[] = [
 ];
 
 describe('matchesAnyRule', () => {
-  it('matches rm with wildcard', () => {
-    expect(matchesAnyRule('Bash', 'rm -rf ./dist', rules)).toBe(true);
+  it('returns the matched rule for rm with wildcard', () => {
+    const result = matchesAnyRule('Bash', 'rm -rf ./dist', rules);
+    expect(result).toEqual({ tool: 'Bash', pattern: 'rm *' });
   });
 
-  it('matches git push with args', () => {
-    expect(matchesAnyRule('Bash', 'git push origin main', rules)).toBe(true);
+  it('returns the matched rule for git push with args', () => {
+    const result = matchesAnyRule('Bash', 'git push origin main', rules);
+    expect(result).toEqual({ tool: 'Bash', pattern: 'git push*' });
   });
 
-  it('matches any Write command', () => {
-    expect(matchesAnyRule('Write', '/any/path.txt', rules)).toBe(true);
+  it('returns the matched rule for any Write command', () => {
+    const result = matchesAnyRule('Write', '/any/path.txt', rules);
+    expect(result).toEqual({ tool: 'Write', pattern: '*' });
   });
 
-  it('does not match safe Bash command', () => {
-    expect(matchesAnyRule('Bash', 'ls -la', rules)).toBe(false);
+  it('returns null for safe Bash command', () => {
+    expect(matchesAnyRule('Bash', 'ls -la', rules)).toBeNull();
   });
 
-  it('does not match wrong tool', () => {
-    expect(matchesAnyRule('Read', '/some/path.txt', rules)).toBe(false);
+  it('returns null for wrong tool', () => {
+    expect(matchesAnyRule('Read', '/some/path.txt', rules)).toBeNull();
   });
 
-  it('returns false for empty rules', () => {
-    expect(matchesAnyRule('Bash', 'rm foo', [])).toBe(false);
+  it('returns null for empty rules', () => {
+    expect(matchesAnyRule('Bash', 'rm foo', [])).toBeNull();
+  });
+
+  it('is truthy when matched (backward compat)', () => {
+    expect(!!matchesAnyRule('Bash', 'rm foo', rules)).toBe(true);
+  });
+
+  it('is falsy when not matched (backward compat)', () => {
+    expect(!!matchesAnyRule('Bash', 'ls', rules)).toBe(false);
   });
 });

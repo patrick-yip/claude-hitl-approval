@@ -28,6 +28,28 @@ describe('loadConfig', () => {
     expect(config.approval.pollIntervalMs).toBe(1000);
     expect(config.approval.timeoutMs).toBe(300000);
     expect(config.rules).toEqual([]);
+    expect(config.learning).toEqual({
+      enabled: false,
+      denyThreshold: 5,
+      approveThreshold: 10,
+      lookbackDays: 30,
+      autoApply: false,
+    });
+  });
+
+  it('merges partial learning config with defaults', () => {
+    writeFileSync(
+      join(testDir, '.hitl.json'),
+      JSON.stringify({
+        learning: { enabled: true, denyThreshold: 3 },
+      }),
+    );
+    const config = loadConfig(testDir, homeDir);
+    expect(config.learning.enabled).toBe(true);
+    expect(config.learning.denyThreshold).toBe(3);
+    expect(config.learning.approveThreshold).toBe(10);
+    expect(config.learning.lookbackDays).toBe(30);
+    expect(config.learning.autoApply).toBe(false);
   });
 
   it('loads .hitl.json from cwd', () => {

@@ -36,14 +36,30 @@ export function initDb(path: string = getDbPath()): Database {
   } catch {
     // Column already exists — ignore
   }
+  // Migrate: add matched_rule column for learning loop
+  try {
+    db.run(`ALTER TABLE requests ADD COLUMN matched_rule TEXT`);
+  } catch {
+    // Column already exists — ignore
+  }
+  // Learning loop: track suggestion actions
+  db.run(`CREATE TABLE IF NOT EXISTS suggestion_actions (
+    id          TEXT PRIMARY KEY,
+    type        TEXT NOT NULL,
+    tool        TEXT NOT NULL,
+    pattern     TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'pending',
+    created_at  INTEGER NOT NULL,
+    resolved_at INTEGER
+  )`);
   return db;
 }
 
 export function insertRequest(db: Database, req: InsertPayload): void {
   db.run(
-    `INSERT INTO requests (id, tool, command, description, workdir, session_id, user_id, requested_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [req.id, req.tool, req.command, req.description, req.workdir, req.sessionId, req.userId, req.requestedAt],
+    `INSERT INTO requests (id, tool, command, description, matched_rule, workdir, session_id, user_id, requested_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [req.id, req.tool, req.command, req.description, req.matchedRule ?? null, req.workdir, req.sessionId, req.userId, req.requestedAt],
   );
 }
 
@@ -121,6 +137,7 @@ function rowToRequest(row: Record<string, unknown>): ApprovalRequest {
     tool: row['tool'] as string,
     command: row['command'] as string,
     description: (row['description'] as string | null) ?? null,
+    matchedRule: (row['matched_rule'] as string | null) ?? null,
     workdir: row['workdir'] as string,
     sessionId: row['session_id'] as string | null,
     userId: row['user_id'] as string,
